@@ -1,0 +1,10 @@
+FROM golang:1.11-alpine3.8
+
+LABEL maintainer="Philip Laine <philip.laine@gmail.com>"
+LABEL url="https://www.github.com/phillebaba/test-web-server"
+
+ENV ARCH=amd64
+
+COPY test-web-server-${ARCH} /opt/bin/test-web-server
+
+ENTRYPOINT ["/opt/bin/test-web-server"]

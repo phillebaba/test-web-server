@@ -14,9 +14,9 @@ jobs:
   - stage: release
     env:
     - DOCKER_USERNAME=phillebaba
-    - secure: YZ8o/eQoFyL1w3+KN21UFPnNHQ2jtEaGevGnv60XfhK+VRn+zFk9LjCYigCx4Dr8Z/grc5J5Rt7+06fWLwkUK4xBMtQqiD0AofRwco6x2R6UdW/Ub7GZp6Y3SFHhNPmpX9RX3YD86rrebMNvZfzJUbwZ/qzxiUjzHnhD+A7GgaWSgyk98D2j+LPRCDLnZ4c1bISTfwGxoEWKeZqX5a5syeyhtIiOnoPSCt4r18RHnFtNf+2tBKlSz+NehlWD8l7DT4rQxzapoOr+xBb0T+PoH+Qi2jD3wU4od4eNi4c1IgjTi6K83JuQWXB5dWLaTgf8wO5WDeqaEgRVFyL29czltINd1H2RtR3O53IK5G7n2BzZ9wdF57mCmKl1rSHLao0yp0HaJA7OZ46VbZFEG3LbKZoD2Cj5NJHE8IOorj9dDMVr/EUWPhLe8aRbTfsOLqEbaVM8rUqGKqndM45suoMS9AfKyE4oNFkm1/baXR3yUCzcJstl2RjMygpFY8+k57Upg+Swp+Ku931Pb8ZVEffogTgSp1PfnHRySHkmc3okPq20fyTdT4zkU50RzpBsvloK2f/HNxQDeG8DqrTMBcQIYz5wOKBn2uk6p2zEm8TZwmu4YNtKs+gBzulfgQyIiPe9dL1HgYaja2alQTrHr5kHY/VNghLr5LPE1dIpC+DLjrw=
     services: docker
     script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     - docker run --rm --privileged multiarch/qemu-user-static:register
     - env GOOS=linux GOARCH=amd64 go build -o test-web-server-amd64
     - env GOOS=linux GOARCH=arm go build -o test-web-server-arm
@@ -27,7 +27,6 @@ jobs:
       ./Dockerfile.arm .
     - docker build -t $DOCKER_USERNAME/test-web-server:${TRAVIS_TAG}-linux-arm64 -f
       ./Dockerfile.arm64 .
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     - docker push $DOCKER_USERNAME/test-web-server:${TRAVIS_TAG}-linux-amd64
     - docker push $DOCKER_USERNAME/test-web-server:${TRAVIS_TAG}-linux-arm
     - docker push $DOCKER_USERNAME/test-web-server:${TRAVIS_TAG}-linux-arm64

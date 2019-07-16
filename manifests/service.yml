@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: status-app
+  name: coffee-svc
+spec:
+  selector:
+    app: coffee
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http

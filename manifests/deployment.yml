@@ -1,19 +1,20 @@
----
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: status-app
-  name: coffee
+  name: test-web-server
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: coffee
+      app: server
   template:
     metadata:
       labels:
-        app: coffee
+        app: server
     spec:
       containers:
-      - name: coffee
-        image: phillebaba/test-web-server:0.1.0-alpha-linux-arm
+      - name: server
+        image: phillebaba/test-web-server:556690f
+        env:
+        - name: MESSAGE
+          value: "Hello Everybody!"

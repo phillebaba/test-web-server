@@ -4,7 +4,7 @@ metadata:
   name: test-web-server
 spec:
   selector:
-    app: server
+    app: test-web-server
   ports:
   - port: 80
     targetPort: 8080

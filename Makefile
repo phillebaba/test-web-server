@@ -3,7 +3,7 @@
 VERSION := $(shell git describe --tags --always --dirty)
 
 IMAGE_REGISTRY := "phillebaba"
-IMAGE_NAME := "node-feature-discovery-usb"
+IMAGE_NAME := "test-web-server"
 IMAGE_TAG_NAME := $(VERSION)
 IMAGE_REPO := $(IMAGE_REGISTRY)/$(IMAGE_NAME)
 IMAGE_TAG := $(IMAGE_REPO):$(IMAGE_TAG_NAME)

@@ -6,3 +6,5 @@ RUN CGO_ENABLED=0 go build -o /bin/test-web-server main.go
 
 FROM scratch
 COPY --from=build /bin/test-web-server /bin/test-web-server
+
+ENTRYPOINT ["/bin/test-web-server"]

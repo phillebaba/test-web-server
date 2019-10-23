@@ -1,49 +1,17 @@
-sudo: true
+dist: xenial
+sudo: yes
 language: go
-stages:
-- test
-- name: release
-  if: tag IS present
-jobs:
-  include:
-  - stage: test
-    script:
-    - go get golang.org/x/lint/golint
-    - golint
-  - script: go test -v
-  - stage: release
-    env:
-    - DOCKER_USERNAME=phillebaba
-    services: docker
-    script:
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    - docker run --rm --privileged multiarch/qemu-user-static:register
-    - env GOOS=linux GOARCH=amd64 go build -o test-web-server-amd64
-    - env GOOS=linux GOARCH=arm go build -o test-web-server-arm
-    - env GOOS=linux GOARCH=arm64 go build -o test-web-server-arm64
-    - docker build -t $DOCKER_USERNAME/test-web-server:${TRAVIS_TAG}-linux-amd64 -f
-      ./Dockerfile.amd64 .
-    - docker build -t $DOCKER_USERNAME/test-web-server:${TRAVIS_TAG}-linux-arm -f
-      ./Dockerfile.arm .
-    - docker build -t $DOCKER_USERNAME/test-web-server:${TRAVIS_TAG}-linux-arm64 -f
-      ./Dockerfile.arm64 .
-    - docker push $DOCKER_USERNAME/test-web-server:${TRAVIS_TAG}-linux-amd64
-    - docker push $DOCKER_USERNAME/test-web-server:${TRAVIS_TAG}-linux-arm
-    - docker push $DOCKER_USERNAME/test-web-server:${TRAVIS_TAG}-linux-arm64
-    - wget https://github.com/estesp/manifest-tool/releases/download/v0.6.0/manifest-tool-linux-amd64
-    - mv manifest-tool-linux-amd64 manifest-tool
-    - chmod +x manifest-tool
-    - ./manifest-tool push from-args --platforms linux/amd64,linux/arm,linux/arm64
-      --template "phillebaba/test-web-server:${TRAVIS_TAG}-OS-ARCH" --target "phillebaba/test-web-server:${TRAVIS_TAG}"
-    deploy:
-      provider: releases
-      skip_cleanup: true
-      api_key:
-        secure: FVZO66FB/oxF9D5gsrEqgO+ntuRbiY3pL/q1Uz1gc+M35SbXAlZgC/PTo8gStCkG3n+x24XWfdbVPVN5410WjI4WrsHlsQXC0Rcsn5zUjwcINeEvk3CuHuHT+63nifVxpU/ArTos2gHIvnV8tzN0Hu73yt+Ee0kxfCIDnFQlP3FBBJpOyXyqoAKVonTClvboD5Nlwkke6TOCatu7WUqfxZ95xw1sJa1THKjlHt7HKcXLj9L7jqSccL1yy6/OTxuWgejqduYQ2+asnTDlry0GW4axYT8CXTyJ8Jet/O4ce9DcxXi5zuy2s4f8ToFlMLxkICfipJFeqNxhuoCqZzda5648TSvWyGZWDGwifpQff/GpZvhKQooyOz7VHhtzvFyIejF6QUlanBzJDDWXqEPem/gNRH0mforoALUYfka1M59PaKanafX9qN9CtaMrIlIg/nNOT0nLj61eAR62eQ7lJHiqS2DIXCI7Ex3iTkQyMfFMo9C6lP94pUjp0yzHWPdO4WX/Og9/QelugX23g194D96Uiwi/03MYilDHiSHnakO/ZhUgwlMUP5U5cz3j0/opY/9mM9FMb9AAW+cMsEISmFiuEtNhYT1xMLK4iGdmjtBoZGuc6oo6Jb4wVEE0xiRvQ0co2XPY2yMSS/FXPTJbdtYPg+mFQBKEwFWZfmfMs0c=
-      file:
-      - test-web-server-amd64
-      - test-web-server-arm
-      - test-web-server-arm64
-      on:
-        repo: phillebaba/test-web-server
-        tags: true
+services: docker
+
+env:
+  - DOCKER_CLI_EXPERIMENTAL=enabled
+
+before_install:
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+
+script:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - make push
